@@ -2,6 +2,7 @@ package logrus
 
 import (
 	"os"
+	"sync"
 
 	"github.com/Sirupsen/logrus"
 )
@@ -11,7 +12,8 @@ var (
 	// _hook contain a singleton instance of `mmHookLogrus`. The
 	// subsequence call of `NewHook` will only replace the field value.
 	//
-	_hook *mmHookLogrus
+	_hook       *mmHookLogrus
+	_hookLocker sync.Mutex
 
 	//
 	// _iconsLevel contains list of icon to be displayed before log
@@ -32,10 +34,10 @@ var (
 // channel, username) and reusable http transport and client.
 //
 type mmHookLogrus struct {
-	Endpoint string
-	Channel  string
-	Username string
-	DefAttc  *Attachment
+	endpoint string
+	channel  string
+	username string
+	defAttc  *Attachment
 	hostname string
 }
 
@@ -59,10 +61,10 @@ func NewHook(endpoint, channel, username string, attc *Attachment) logrus.Hook {
 
 	if _hook == nil {
 		_hook = &mmHookLogrus{
-			Endpoint: endpoint,
-			Channel:  channel,
-			Username: username,
-			DefAttc:  attc,
+			endpoint: endpoint,
+			channel:  channel,
+			username: username,
+			defAttc:  attc,
 		}
 
 		_hook.hostname, err = os.Hostname()
@@ -70,10 +72,14 @@ func NewHook(endpoint, channel, username string, attc *Attachment) logrus.Hook {
 			_hook.hostname = os.Getenv("HOSTNAME")
 		}
 	} else {
-		_hook.Endpoint = endpoint
-		_hook.Channel = channel
-		_hook.Username = username
-		_hook.DefAttc = attc
+		_hookLocker.Lock()
+
+		_hook.endpoint = endpoint
+		_hook.channel = channel
+		_hook.username = username
+		_hook.defAttc = attc
+
+		_hookLocker.Unlock()
 	}
 
 	return _hook
@@ -94,9 +100,59 @@ func (hook *mmHookLogrus) Fire(entry *logrus.Entry) (err error) {
 		return
 	}
 
-	msg := NewMessage(hook.DefAttc, entry)
+	msg := NewMessage(hook.Attachment(), entry)
 
 	_chanMsg <- msg
 
+	return
+}
+
+//
+// Endpoint will return Mattermost endpoint defined in hook.
+//
+func (hook *mmHookLogrus) Endpoint() (endpoint string) {
+	_hookLocker.Lock()
+	endpoint = hook.endpoint
+	_hookLocker.Unlock()
+	return
+}
+
+//
+// Channel will return Mattermost channel defined in hook.
+//
+func (hook *mmHookLogrus) Channel() (channel string) {
+	_hookLocker.Lock()
+	channel = hook.channel
+	_hookLocker.Unlock()
+	return
+}
+
+//
+// Username will return Mattermost username defined in hook.
+//
+func (hook *mmHookLogrus) Username() (username string) {
+	_hookLocker.Lock()
+	username = hook.username
+	_hookLocker.Unlock()
+	return
+}
+
+//
+// Attachment will return default Mattermost attachment defined in hook.
+//
+func (hook *mmHookLogrus) Attachment() (attc *Attachment) {
+	_hookLocker.Lock()
+	attc = hook.defAttc
+	_hookLocker.Unlock()
+	return
+}
+
+//
+// Hostname will return hostname of current hook.
+//
+func (hook *mmHookLogrus) Hostname() (hostname string) {
+	_hookLocker.Lock()
+	hostname = hook.hostname
+	_hookLocker.Unlock()
 	return
 }

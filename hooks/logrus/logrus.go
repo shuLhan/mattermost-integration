@@ -53,9 +53,14 @@ var (
 	_wg       sync.WaitGroup
 )
 
-func send(msg *Message) {
+//
+// send will send message `msg` to Mattermost.
+//
+// On success it will return the HTTP response body with nil error.
+// On fail it will return empty response with error message.
+//
+func send(msg *Message) (sResBody string, err error) {
 	var (
-		err              error
 		reqBody, resBody []byte
 		body             *bytes.Reader
 		req              *http.Request
@@ -64,45 +69,33 @@ func send(msg *Message) {
 
 	reqBody, err = json.Marshal(msg)
 	if err != nil {
-		println(">>> json.Marshal:", err)
-		goto out
+		return
 	}
 
 	body = bytes.NewReader(reqBody)
 
-	req, err = http.NewRequest("POST", _hook.Endpoint, body)
+	req, err = http.NewRequest("POST", _hook.Endpoint(), body)
 	if err != nil {
-		println(">>> http.NewRequest:", err)
-		goto out
+		return
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 
 	res, err = _httpCl.Do(req)
 	if err != nil {
-		println(">>> client.Do:", err)
-		goto out
+		return
 	}
 
 	resBody, err = ioutil.ReadAll(res.Body)
 	if err != nil {
-		println(">>> ioutil.ReadAll:", err)
-		goto out
+		return
 	}
 
+	sResBody = string(resBody)
+
 	err = res.Body.Close()
-	if err != nil {
-		println(">>> res body:", string(resBody))
-		println(">>> res.Body.Close:", err)
-	}
-out:
-	go func() {
-		if err != nil {
-			_chanSent <- err.Error()
-		} else {
-			_chanSent <- string(resBody)
-		}
-	}()
+
+	return
 }
 
 //
@@ -114,13 +107,30 @@ func consumer() {
 		select {
 		case msg, ok := <-_chanMsg:
 			if ok {
-				send(msg)
+				res, err := send(msg)
+
+				go func() {
+					if err != nil {
+						_chanSent <- err.Error()
+					} else {
+						_chanSent <- res
+					}
+				}()
 			} else {
 				goto out
 			}
+		case <-_chanSent:
+			continue
+		default:
+			time.Sleep(100 * time.Millisecond)
 		}
 	}
 out:
+	select {
+	case <-_chanSent:
+	default:
+		close(_chanSent)
+	}
 	_wg.Done()
 }
 
@@ -130,7 +140,6 @@ out:
 func Stop() {
 	close(_chanMsg)
 	_wg.Wait()
-	close(_chanSent)
 }
 
 func init() {

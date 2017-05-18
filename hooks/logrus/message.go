@@ -56,13 +56,16 @@ func (msg Message) getText() (str string) {
 func (msg Message) MarshalJSON() (out []byte, err error) {
 	str := `{`
 
-	if len(_hook.Channel) > 0 {
-		str += `"channel":"` + _hook.Channel + `",`
+	channel := _hook.Channel()
+	if len(channel) > 0 {
+		str += `"channel":"` + channel + `",`
 	}
-	if len(_hook.Username) > 0 {
-		str += `"username":"` + _hook.Username + `",`
+
+	username := _hook.Username()
+	if len(username) > 0 {
+		str += `"username":"` + username + `",`
 	} else {
-		str += `"username":"` + _hook.hostname + `",`
+		str += `"username":"` + _hook.Hostname() + `",`
 	}
 
 	if msg.attc != nil {
