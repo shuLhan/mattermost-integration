@@ -23,7 +23,7 @@ The following code show how to use the hook,
 
 ```
 import (
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	mmlogrus "github.com/shuLhan/mattermost-integration/hooks/logrus"
 )
 

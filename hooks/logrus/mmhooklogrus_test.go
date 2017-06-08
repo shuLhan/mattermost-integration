@@ -6,7 +6,7 @@ import (
 	"runtime/debug"
 	"testing"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -256,9 +256,5 @@ func TestFireWithAttachment(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-
-		res := <-_chanSent
-
-		assert(t, test.exp, res, true)
 	}
 }

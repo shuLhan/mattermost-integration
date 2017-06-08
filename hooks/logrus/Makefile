@@ -1,4 +1,4 @@
-GOPATH_SHARED_DEPS:= $(GOPATH)/src/github.com/Sirupsen/logrus \
+GOPATH_SHARED_DEPS:= $(GOPATH)/src/github.com/sirupsen/logrus \
 
 COVER_OUT:=	cover.out
 COVER_HTML:=	cover.html
@@ -25,8 +25,8 @@ all: install
 ## DEPENDENCIES
 ##
 
-$(GOPATH)/src/github.com/Sirupsen/logrus:
-	go get -u github.com/Sirupsen/logrus
+$(GOPATH)/src/github.com/sirupsen/logrus:
+	go get -u github.com/sirupsen/logrus
 
 deps: $(GOPATH_SHARED_DEPS)
 
