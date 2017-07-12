@@ -1,3 +1,7 @@
+## Copyright 2017 Mhd Sulhan <ms@kilabit.info>. All rights reserved.
+## Use of this source code is governed by a BSD-style
+## license that can be found in the LICENSE file.
+
 GOPATH_SHARED_DEPS:= $(GOPATH)/src/github.com/sirupsen/logrus \
 
 COVER_OUT:=	cover.out
