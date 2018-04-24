@@ -130,11 +130,6 @@ func consumer() {
 		}
 	}
 out:
-	select {
-	case <-_chanSent:
-	default:
-		close(_chanSent)
-	}
 	_wg.Done()
 }
 
