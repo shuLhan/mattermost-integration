@@ -41,10 +41,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"os"
-	"os/signal"
 	"sync"
-	"syscall"
 	"time"
 )
 
@@ -53,8 +50,8 @@ var (
 	_httpCl   *http.Client
 	_chanMsg  chan *Message
 	_chanSent chan string
-	_chanSig  chan os.Signal
 	_wg       sync.WaitGroup
+	_running  bool
 )
 
 //
@@ -107,6 +104,7 @@ func send(msg *Message) (sResBody string, err error) {
 // Mattermost.
 //
 func consumer() {
+	_running = true
 	for {
 		select {
 		case msg, ok := <-_chanMsg:
@@ -130,6 +128,7 @@ func consumer() {
 		}
 	}
 out:
+	_running = false
 	_wg.Done()
 }
 
@@ -141,7 +140,8 @@ func Stop() {
 	_wg.Wait()
 }
 
-func init() {
+// Start will start the message consumer routine.
+func Start() {
 	_httpTr = &http.Transport{
 		MaxIdleConns:       3,
 		IdleConnTimeout:    time.Minute,
@@ -157,13 +157,4 @@ func init() {
 
 	_wg.Add(1)
 	go consumer()
-
-	_chanSig = make(chan os.Signal, 1)
-	signal.Notify(_chanSig, syscall.SIGINT, syscall.SIGTERM,
-		syscall.SIGQUIT, syscall.SIGSEGV)
-	go func() {
-		<-_chanSig
-		Stop()
-		close(_chanSig)
-	}()
 }

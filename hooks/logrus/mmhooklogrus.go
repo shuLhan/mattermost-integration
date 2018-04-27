@@ -86,6 +86,10 @@ func NewHook(endpoint, channel, username string, attc *Attachment) logrus.Hook {
 		_hookLocker.Unlock()
 	}
 
+	if !_running {
+		Start()
+	}
+
 	return _hook
 }
 
