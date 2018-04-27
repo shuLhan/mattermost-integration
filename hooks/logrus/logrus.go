@@ -41,7 +41,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"sync"
 	"time"
 )
 
@@ -50,7 +49,6 @@ var (
 	_httpCl   *http.Client
 	_chanMsg  chan *Message
 	_chanSent chan string
-	_wg       sync.WaitGroup
 	_running  bool
 )
 
@@ -88,11 +86,9 @@ func send(msg *Message) (sResBody string, err error) {
 	}
 
 	resBody, err = ioutil.ReadAll(res.Body)
-	if err != nil {
-		return
+	if err == nil {
+		sResBody = string(resBody)
 	}
-
-	sResBody = string(resBody)
 
 	err = res.Body.Close()
 
@@ -105,39 +101,37 @@ func send(msg *Message) (sResBody string, err error) {
 //
 func consumer() {
 	_running = true
-	for {
+	for _running {
 		select {
 		case msg, ok := <-_chanMsg:
-			if ok {
-				res, err := send(msg)
-
-				go func() {
-					if err != nil {
-						_chanSent <- err.Error()
-					} else {
-						_chanSent <- res
-					}
-				}()
-			} else {
+			if !ok {
 				goto out
 			}
+
+			go func() {
+				res, err := send(msg)
+				if err != nil {
+					_chanSent <- err.Error()
+				} else {
+					_chanSent <- res
+				}
+			}()
 		case <-_chanSent:
 			continue
-		default:
-			time.Sleep(100 * time.Millisecond)
 		}
 	}
 out:
 	_running = false
-	_wg.Done()
 }
 
 //
 // Stop will wait for all message to be send and close all channels.
 //
 func Stop() {
-	close(_chanMsg)
-	_wg.Wait()
+	_running = false
+	if _chanMsg != nil {
+		close(_chanMsg)
+	}
 }
 
 // Start will start the message consumer routine.
@@ -152,9 +146,8 @@ func Start() {
 		Transport: _httpTr,
 	}
 
-	_chanMsg = make(chan *Message, 1)
-	_chanSent = make(chan string, 1)
+	_chanMsg = make(chan *Message, 30)
+	_chanSent = make(chan string, 30)
 
-	_wg.Add(1)
 	go consumer()
 }
