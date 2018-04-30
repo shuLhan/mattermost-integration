@@ -42,10 +42,10 @@ func TestFire(t *testing.T) {
 		exp  string
 	}{
 		{
-			desc: "With empty fields",
+			desc: "With empty data",
 			in: logrus.Entry{
 				Level:   logrus.DebugLevel,
-				Message: "Test with empty field",
+				Message: "Test with empty data",
 			},
 			exp: "ok",
 		},
@@ -128,6 +128,32 @@ func TestFire(t *testing.T) {
 				Data: logrus.Fields{
 					"k1": "v1",
 					"k2": "v2",
+				},
+			},
+			exp: "ok",
+		}, {
+			desc: "With struct",
+			in: logrus.Entry{
+				Level:   logrus.InfoLevel,
+				Message: "Test struct",
+				Data: logrus.Fields{
+					"struct": struct {
+						n int
+						s string
+					}{
+						n: 10,
+						s: "str",
+					},
+				},
+			},
+			exp: "ok",
+		}, {
+			desc: "With JSON on message",
+			in: logrus.Entry{
+				Level:   logrus.InfoLevel,
+				Message: `{"msg":"Test message \"with JSON\""}`,
+				Data: logrus.Fields{
+					"msgjson": `{"test":"value"}`,
 				},
 			},
 			exp: "ok",
@@ -260,5 +286,10 @@ func TestFireWithAttachment(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+
+		res := <-_chanSent
+
+		assert(t, test.exp, res, true)
+
 	}
 }

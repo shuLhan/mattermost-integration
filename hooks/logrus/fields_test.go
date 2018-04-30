@@ -5,7 +5,6 @@
 package logrus
 
 import (
-	"encoding/json"
 	"testing"
 )
 
@@ -52,7 +51,7 @@ func TestFieldsUnmarshalJSON(t *testing.T) {
 	for _, test := range tests {
 		t.Log(test.desc)
 
-		got, err := json.Marshal(test.in)
+		got, err := test.in.MarshalJSON()
 		if err != nil {
 			t.Fatal(err)
 		}

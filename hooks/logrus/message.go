@@ -5,7 +5,6 @@
 package logrus
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/sirupsen/logrus"
@@ -38,26 +37,60 @@ func NewMessage(attc *Attachment, entry *logrus.Entry) (msg *Message) {
 //
 // getText will convert Message into text. The text output format,
 //
-// `<username|hostname>: :icon: <field-key=field-value ...> msg=Message`
+// `:icon: <field-key=field-value ...> msg=Message`
 //
 func (msg Message) getText() (str string) {
-	str = _iconsLevel[msg.entryLevel]
+	var out []byte
+
+	out = append(out, []byte(_iconsLevel[msg.entryLevel])...)
 
 	for k, v := range msg.entryData {
-		str += fmt.Sprintf(" %s=%v", k, v)
+		out = append(out, ' ')
+		out = append(out, []byte(k)...)
+		out = append(out, '=')
+
+		str = fmt.Sprintf("%+v", v)
+		for _, c := range []byte(str) {
+			if c == '\\' {
+				out = append(out, []byte(`\`)...)
+				out = append(out, []byte(`\`)...)
+				continue
+			}
+			if c == '"' {
+				out = append(out, []byte(`\`)...)
+				out = append(out, []byte(`"`)...)
+				continue
+			}
+			out = append(out, c)
+		}
 	}
 
 	if len(msg.entryMsg) > 0 {
-		str += " msg=" + msg.entryMsg
+		out = append(out, ' ')
+		out = append(out, []byte("msg=")...)
+
+		for _, c := range []byte(msg.entryMsg) {
+			if c == '\\' {
+				out = append(out, []byte(`\`)...)
+				out = append(out, []byte(`\`)...)
+				continue
+			}
+			if c == '"' {
+				out = append(out, []byte(`\`)...)
+				out = append(out, []byte(`"`)...)
+				continue
+			}
+			out = append(out, c)
+		}
 	}
 
-	return
+	return string(out)
 }
 
 //
 // MarshalJSON will convert message to JSON.
 //
-func (msg Message) MarshalJSON() (out []byte, err error) {
+func (msg *Message) MarshalJSON() (out []byte, err error) {
 	str := `{`
 
 	channel := _hook.Channel()
@@ -75,7 +108,7 @@ func (msg Message) MarshalJSON() (out []byte, err error) {
 	if msg.attc != nil {
 		var attc []byte
 
-		attc, err = json.Marshal(msg.attc)
+		attc, err = msg.attc.MarshalJSON()
 		if err != nil {
 			return
 		}

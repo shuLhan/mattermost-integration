@@ -38,7 +38,6 @@ package logrus
 
 import (
 	"bytes"
-	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -66,7 +65,7 @@ func send(msg *Message) (sResBody string, err error) {
 		res              *http.Response
 	)
 
-	reqBody, err = json.Marshal(msg)
+	reqBody, err = msg.MarshalJSON()
 	if err != nil {
 		return
 	}

@@ -32,8 +32,8 @@ func (field Field) MarshalJSON() (out []byte, err error) {
 		str += `"short":false,`
 	}
 
-	str += `"title": "` + field.Title + `",`
-	str += `"value": "` + field.Value + `"`
+	str += `"title":"` + field.Title + `",`
+	str += `"value":"` + field.Value + `"`
 
 out:
 	str += "}"
