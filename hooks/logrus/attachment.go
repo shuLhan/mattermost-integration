@@ -5,8 +5,9 @@
 package logrus
 
 import (
+	"bytes"
 	"fmt"
-	"strings"
+	"sort"
 
 	"github.com/sirupsen/logrus"
 )
@@ -71,64 +72,86 @@ func NewAttachment(defAttc *Attachment, entry *logrus.Entry) (
 	return
 }
 
-func (attc Attachment) marshalAuthor() (str string) {
+func (attc Attachment) marshalAuthor(buf *bytes.Buffer) {
 	if len(attc.AuthorIcon) > 0 {
-		str += `"author_icon":"` + attc.AuthorIcon + `",`
+		_ = bufWriteKV(buf, `"author_icon"`, []byte(attc.AuthorIcon),
+			':', '"', '"')
+		_ = buf.WriteByte(',')
 	}
 	if len(attc.AuthorLink) > 0 {
-		str += `"author_link":"` + attc.AuthorLink + `",`
+		_ = bufWriteKV(buf, `"author_link"`, []byte(attc.AuthorLink),
+			':', '"', '"')
+		_ = buf.WriteByte(',')
 	}
 	if len(attc.AuthorName) > 0 {
-		str += `"author_name":"` + attc.AuthorName + `",`
+		_ = bufWriteKV(buf, `"author_name"`, []byte(attc.AuthorName),
+			':', '"', '"')
+		_ = buf.WriteByte(',')
 	}
-
-	return
 }
 
 //
 // MarshalJSON will convert Attachment `attc` to JSON.
 //
 func (attc Attachment) MarshalJSON() (out []byte, err error) {
+	var buf bytes.Buffer
 	var bFields []byte
 
-	bFields, err = attc.Fields.MarshalJSON()
-	if err != nil {
-		return
-	}
+	_ = buf.WriteByte('{')
 
-	str := "{"
-
-	str += attc.marshalAuthor()
+	attc.marshalAuthor(&buf)
 
 	if len(attc.Color) > 0 {
-		str += `"color":"` + attc.Color + `",`
+		_ = bufWriteKV(&buf, `"color"`, []byte(attc.Color),
+			':', '"', '"')
+		_ = buf.WriteByte(',')
 	}
 	if len(attc.Fallback) > 0 {
-		str += `"fallback":"` + attc.Fallback + `",`
+		_ = bufWriteKV(&buf, `"fallback"`, []byte(attc.Fallback),
+			':', '"', '"')
+		_ = buf.WriteByte(',')
 	}
 	if len(attc.Fields) > 0 {
-		str += `"fields":` + string(bFields) + `,`
+		bFields, err = attc.Fields.MarshalJSON()
+		if err != nil {
+			return
+		}
+
+		_, _ = buf.WriteString(`"fields":`)
+		_, _ = buf.Write(bFields)
+		_ = buf.WriteByte(',')
 	}
 	if len(attc.ImageURL) > 0 {
-		str += `"image_url":"` + attc.ImageURL + `",`
+		_ = bufWriteKV(&buf, `"image_url"`, []byte(attc.ImageURL),
+			':', '"', '"')
+		_ = buf.WriteByte(',')
 	}
 	if len(attc.Pretext) > 0 {
-		str += `"pretext":"` + attc.Pretext + `",`
+		_ = bufWriteKV(&buf, `"pretext"`, []byte(attc.Pretext),
+			':', '"', '"')
+		_ = buf.WriteByte(',')
+
 	}
 	if len(attc.Text) > 0 {
-		str += `"text":"` + attc.Text + `",`
+		_ = bufWriteKV(&buf, `"text"`, []byte(attc.Text),
+			':', '"', '"')
+		_ = buf.WriteByte(',')
 	}
 	if len(attc.Title) > 0 {
-		str += `"title":"` + attc.Title + `",`
+		_ = bufWriteKV(&buf, `"title"`, []byte(attc.Title),
+			':', '"', '"')
+		_ = buf.WriteByte(',')
 	}
 	if len(attc.TitleLink) > 0 {
-		str += `"title_link":"` + attc.TitleLink + `"`
-	} else {
-		str = strings.TrimRight(str, ",")
+		_ = bufWriteKV(&buf, `"title_link"`, []byte(attc.TitleLink),
+			':', '"', '"')
+		_ = buf.WriteByte(',')
 	}
 
-	str += "}"
-	out = []byte(str)
+	out = buf.Bytes()
+
+	out = bytes.TrimSuffix(out, []byte(","))
+	out = append(out, []byte("}")...)
 
 	return
 }
@@ -143,11 +166,17 @@ func (attc *Attachment) SetFields(in logrus.Fields) {
 		return
 	}
 
-	for k, v := range in {
+	var keys []string
+	for k := range in {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, k := range keys {
 		attc.Fields = append(attc.Fields, Field{
 			Short: true,
 			Title: k,
-			Value: fmt.Sprintf("%v", v),
+			Value: fmt.Sprintf("%+v", in[k]),
 		})
 	}
 }

@@ -253,8 +253,9 @@ func (msg *Message) MarshalJSON() (out []byte, err error) {
 			return
 		}
 
-		err = bufWriteKV(&msg.buf, `"attachments"`, attc,
-			':', '[', ']')
+		_, _ = msg.buf.WriteString(`"attachments":[`)
+		_, _ = msg.buf.Write(attc)
+		_ = msg.buf.WriteByte(']')
 	} else {
 		err = msg.writeText()
 	}
