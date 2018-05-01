@@ -23,6 +23,16 @@ var (
 	_endpoint, _channel, _username string
 )
 
+func assertb(b *testing.B, exp, got interface{}, equal bool) {
+	if reflect.DeepEqual(exp, got) != equal {
+		debug.PrintStack()
+		b.Fatalf("\n"+
+			">>> Expecting '%+v'\n"+
+			"          got '%+v'\n", exp, got)
+		os.Exit(1)
+	}
+}
+
 func assert(t *testing.T, exp, got interface{}, equal bool) {
 	if reflect.DeepEqual(exp, got) != equal {
 		debug.PrintStack()
@@ -132,28 +142,20 @@ func TestFire(t *testing.T) {
 			},
 			exp: "ok",
 		}, {
-			desc: "With struct",
+			desc: "With complex fields",
 			in: logrus.Entry{
 				Level:   logrus.InfoLevel,
-				Message: "Test struct",
+				Message: `{"msg":"Test message \"JSON\""}`,
 				Data: logrus.Fields{
+					"string": "string with space",
 					"struct": struct {
 						n int
 						s string
 					}{
 						n: 10,
-						s: "str",
+						s: "a string",
 					},
-				},
-			},
-			exp: "ok",
-		}, {
-			desc: "With JSON on message",
-			in: logrus.Entry{
-				Level:   logrus.InfoLevel,
-				Message: `{"msg":"Test message \"with JSON\""}`,
-				Data: logrus.Fields{
-					"msgjson": `{"test":"value"}`,
+					"json": `{"test":"value"}`,
 				},
 			},
 			exp: "ok",
@@ -273,6 +275,24 @@ func TestFireWithAttachment(t *testing.T) {
 				Data: logrus.Fields{
 					"k1": "v1",
 					"k2": "v2",
+				},
+			},
+			exp: "ok",
+		}, {
+			desc: "With complex fields",
+			in: logrus.Entry{
+				Level:   logrus.InfoLevel,
+				Message: `{"msg":"Test message \"with JSON\""}`,
+				Data: logrus.Fields{
+					"string": "string with space",
+					"struct": struct {
+						n int
+						s string
+					}{
+						n: 10,
+						s: "a string",
+					},
+					"json": `{"test":"value"}`,
 				},
 			},
 			exp: "ok",
