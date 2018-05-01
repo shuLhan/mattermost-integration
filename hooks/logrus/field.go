@@ -4,6 +4,10 @@
 
 package logrus
 
+import (
+	"bytes"
+)
+
 //
 // Field define a single field in message attachment.
 //
@@ -18,8 +22,12 @@ type Field struct {
 //
 // (1) The conversion will skip empty field Title or Value.
 //
+// Returned error always nil.
+//
 func (field Field) MarshalJSON() (out []byte, err error) {
-	str := "{"
+	var buf bytes.Buffer
+
+	_ = buf.WriteByte('{')
 
 	// (1)
 	if len(field.Title) == 0 || len(field.Value) == 0 {
@@ -27,17 +35,19 @@ func (field Field) MarshalJSON() (out []byte, err error) {
 	}
 
 	if field.Short {
-		str += `"short":true,`
+		_ = bufWriteKV(&buf, `"short"`, []byte("true"), ':', 0, 0)
 	} else {
-		str += `"short":false,`
+		_ = bufWriteKV(&buf, `"short"`, []byte("false"), ':', 0, 0)
 	}
 
-	str += `"title":"` + field.Title + `",`
-	str += `"value":"` + field.Value + `"`
+	_ = buf.WriteByte(',')
+	_ = bufWriteKV(&buf, `"title"`, []byte(field.Title), ':', '"', '"')
+	_ = buf.WriteByte(',')
+	_ = bufWriteKV(&buf, `"value"`, []byte(field.Value), ':', '"', '"')
 
 out:
-	str += "}"
-	out = []byte(str)
+	_ = buf.WriteByte('}')
+	out = buf.Bytes()
 
 	return
 }

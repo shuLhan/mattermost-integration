@@ -5,7 +5,7 @@
 package logrus
 
 import (
-	"strings"
+	"bytes"
 )
 
 //
@@ -13,34 +13,33 @@ import (
 //
 type Fields []Field
 
-const (
-	_emptyField = `{}`
-	_sep        = `,`
-)
-
 //
 // MarshalJSON will convert `field` into a valid JSON. We use manual
 // convertion for gaining speed.
 //
 func (fields Fields) MarshalJSON() (out []byte, err error) {
-	var fout []byte
-	str := "["
+	var buf bytes.Buffer
+	sep := false
+
+	_ = buf.WriteByte('[')
 
 	for _, field := range fields {
-		fout, err = field.MarshalJSON()
-		if err != nil {
-			return
+		if sep {
+			_ = buf.WriteByte(',')
 		}
 
-		if string(fout) != _emptyField {
-			str += string(fout) + _sep
+		fout, _ := field.MarshalJSON()
+
+		if len(fout) > 2 {
+			_, _ = buf.Write(fout)
+			sep = true
+		} else {
+			sep = false
 		}
 	}
 
-	str = strings.TrimRight(str, _sep)
-
-	str += "]"
-	out = []byte(str)
+	_ = buf.WriteByte(']')
+	out = buf.Bytes()
 
 	return
 }
