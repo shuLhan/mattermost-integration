@@ -110,6 +110,7 @@ func (msg Message) getText() (str string) {
 
 //
 // _marshalJSON will convert message to JSON.
+// NOTE: unused
 //
 func (msg *Message) _marshalJSON() (out []byte, err error) {
 	str := `{`
@@ -143,59 +144,6 @@ func (msg *Message) _marshalJSON() (out []byte, err error) {
 	return
 }
 
-func (msg *Message) writeKV(k string, v []byte, sep, l, r byte) (
-	err error,
-) {
-	_, err = msg.buf.WriteString(k)
-	if err != nil {
-		return
-	}
-	err = msg.buf.WriteByte(sep)
-	if err != nil {
-		return
-	}
-	if l > 0 {
-		err = msg.buf.WriteByte(l)
-		if err != nil {
-			return
-		}
-	}
-	for _, c := range v {
-		if c == '\\' {
-			err = msg.buf.WriteByte('\\')
-			if err != nil {
-				return
-			}
-			err = msg.buf.WriteByte('\\')
-			if err != nil {
-				return
-			}
-			continue
-		}
-		if c == '"' {
-			err = msg.buf.WriteByte('\\')
-			if err != nil {
-				return
-			}
-			err = msg.buf.WriteByte('"')
-			if err != nil {
-				return
-			}
-			continue
-		}
-		err = msg.buf.WriteByte(c)
-		if err != nil {
-			return
-		}
-	}
-
-	if r > 0 {
-		err = msg.buf.WriteByte(r)
-	}
-
-	return
-}
-
 func (msg *Message) writeEntryData() (err error) {
 	msg.generateDataKeys()
 
@@ -207,7 +155,7 @@ func (msg *Message) writeEntryData() (err error) {
 
 		str := fmt.Sprintf("%+v", msg.entryData[k])
 
-		err = msg.writeKV(k, []byte(str), '=', 0, 0)
+		err = bufWriteKV(&msg.buf, k, []byte(str), '=', 0, 0)
 		if err != nil {
 			return
 		}
@@ -226,7 +174,7 @@ func (msg *Message) writeEntryMsg() (err error) {
 		return
 	}
 
-	err = msg.writeKV("msg", []byte(msg.entryMsg), '=', 0, 0)
+	err = bufWriteKV(&msg.buf, "msg", []byte(msg.entryMsg), '=', 0, 0)
 	if err != nil {
 		return
 	}
@@ -272,7 +220,8 @@ func (msg *Message) MarshalJSON() (out []byte, err error) {
 	}
 
 	if len(msg.channel) > 0 {
-		err = msg.writeKV(`"channel"`, []byte(msg.channel), ':', '"', '"')
+		err = bufWriteKV(&msg.buf, `"channel"`, []byte(msg.channel),
+			':', '"', '"')
 		if err != nil {
 			return
 		}
@@ -282,9 +231,11 @@ func (msg *Message) MarshalJSON() (out []byte, err error) {
 		}
 	}
 	if len(msg.username) > 0 {
-		err = msg.writeKV(`"username"`, []byte(msg.username), ':', '"', '"')
+		err = bufWriteKV(&msg.buf, `"username"`, []byte(msg.username),
+			':', '"', '"')
 	} else {
-		err = msg.writeKV(`"username"`, []byte(msg.hostname), ':', '"', '"')
+		err = bufWriteKV(&msg.buf, `"username"`, []byte(msg.hostname),
+			':', '"', '"')
 	}
 	if err != nil {
 		return
@@ -302,7 +253,8 @@ func (msg *Message) MarshalJSON() (out []byte, err error) {
 			return
 		}
 
-		err = msg.writeKV(`"attachments"`, attc, ':', '[', ']')
+		err = bufWriteKV(&msg.buf, `"attachments"`, attc,
+			':', '[', ']')
 	} else {
 		err = msg.writeText()
 	}
