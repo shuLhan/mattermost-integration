@@ -14,6 +14,9 @@ import (
 // Message define the message that will be send to Mattermost.
 //
 type Message struct {
+	channel    string
+	username   string
+	hostname   string
 	attc       *Attachment
 	entryData  logrus.Fields
 	entryLevel logrus.Level
@@ -23,7 +26,9 @@ type Message struct {
 //
 // NewMessage will create and return new Message.
 //
-func NewMessage(attc *Attachment, entry *logrus.Entry) (msg *Message) {
+func NewMessage(channel, username, hostname string, attc *Attachment,
+	entry *logrus.Entry,
+) (msg *Message) {
 	msg = &Message{
 		attc:       NewAttachment(attc, entry),
 		entryData:  entry.Data,
@@ -93,16 +98,14 @@ func (msg Message) getText() (str string) {
 func (msg *Message) MarshalJSON() (out []byte, err error) {
 	str := `{`
 
-	channel := _hook.Channel()
-	if len(channel) > 0 {
-		str += `"channel":"` + channel + `",`
+	if len(msg.channel) > 0 {
+		str += `"channel":"` + msg.channel + `",`
 	}
 
-	username := _hook.Username()
-	if len(username) > 0 {
-		str += `"username":"` + username + `",`
+	if len(msg.username) > 0 {
+		str += `"username":"` + msg.username + `",`
 	} else {
-		str += `"username":"` + _hook.Hostname() + `",`
+		str += `"username":"` + msg.hostname + `",`
 	}
 
 	if msg.attc != nil {

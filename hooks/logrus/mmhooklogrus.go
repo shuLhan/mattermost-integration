@@ -108,7 +108,8 @@ func (hook *mmHookLogrus) Fire(entry *logrus.Entry) (err error) {
 		return
 	}
 
-	msg := NewMessage(hook.Attachment(), entry)
+	msg := NewMessage(hook.Channel(), hook.Username(), hook.Hostname(),
+		hook.Attachment(), entry)
 
 	_chanMsg <- msg
 
