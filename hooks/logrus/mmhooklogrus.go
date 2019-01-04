@@ -64,12 +64,12 @@ type mmHookLogrus struct {
 //
 func NewHook(endpoint, channel, username string, attc *Attachment, minLevel logrus.Level) logrus.Hook {
 	levels := make([]logrus.Level, 0, len(logrus.AllLevels))
-	for _ lvl := range logrus.AllLevels {
-		if lvl >= minLevel {
-			levels = append(levels, lvl)	
+	for _, lvl := range logrus.AllLevels { // sorted reversally
+		if lvl <= minLevel {
+			levels = append(levels, lvl)
 		}
 	}
-	
+
 	var err error
 
 	if _hook == nil {
@@ -78,7 +78,7 @@ func NewHook(endpoint, channel, username string, attc *Attachment, minLevel logr
 			channel:  channel,
 			username: username,
 			defAttc:  attc,
-			levels: levels,
+			levels:   levels,
 		}
 
 		_hook.hostname, err = os.Hostname()
@@ -92,6 +92,7 @@ func NewHook(endpoint, channel, username string, attc *Attachment, minLevel logr
 		_hook.channel = channel
 		_hook.username = username
 		_hook.defAttc = attc
+		_hook.levels = levels
 
 		_hookLocker.Unlock()
 	}
@@ -118,10 +119,14 @@ func (hook *mmHookLogrus) Fire(entry *logrus.Entry) (err error) {
 		return
 	}
 
-	msg := NewMessage(hook.Channel(), hook.Username(), hook.Hostname(),
-		hook.Attachment(), entry)
-
-	_chanMsg <- msg
+	for _, lvl := range hook.levels {
+		if lvl == entry.Level {
+			msg := NewMessage(hook.Channel(), hook.Username(), hook.Hostname(),
+				hook.Attachment(), entry)
+			_chanMsg <- msg
+			break
+		}
+	}
 
 	return
 }
