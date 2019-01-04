@@ -20,6 +20,7 @@ var (
 		"#9F6000", // Warning
 		"#FFFFFF", // Info
 		"#000000", // Debug
+		"#000000", // Trace
 	}
 )
 
