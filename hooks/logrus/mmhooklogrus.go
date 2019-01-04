@@ -30,6 +30,7 @@ var (
 		":interrobang:",  // Warning
 		":white_circle:", // Info
 		":black_circle:", // Debug
+		":mag_right:",    // Trace
 	}
 )
 
