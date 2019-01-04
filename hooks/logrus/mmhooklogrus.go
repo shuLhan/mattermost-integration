@@ -43,6 +43,7 @@ type mmHookLogrus struct {
 	username string
 	defAttc  *Attachment
 	hostname string
+	levels   []logrus.Level
 }
 
 //
@@ -60,7 +61,14 @@ type mmHookLogrus struct {
 //
 // [1] https://docs.mattermost.com/developer/message-attachments.html
 //
-func NewHook(endpoint, channel, username string, attc *Attachment) logrus.Hook {
+func NewHook(endpoint, channel, username string, attc *Attachment, minLevel logrus.Level) logrus.Hook {
+	levels := make([]logrus.Level, 0, len(logrus.AllLevels))
+	for _ lvl := range logrus.AllLevels {
+		if lvl >= minLevel {
+			levels = append(levels, lvl)	
+		}
+	}
+	
 	var err error
 
 	if _hook == nil {
@@ -69,6 +77,7 @@ func NewHook(endpoint, channel, username string, attc *Attachment) logrus.Hook {
 			channel:  channel,
 			username: username,
 			defAttc:  attc,
+			levels: levels,
 		}
 
 		_hook.hostname, err = os.Hostname()
@@ -97,7 +106,7 @@ func NewHook(endpoint, channel, username string, attc *Attachment) logrus.Hook {
 // Levels will return all logrus level that will be send to Mattermost.
 //
 func (hook *mmHookLogrus) Levels() []logrus.Level {
-	return logrus.AllLevels
+	return hook.levels
 }
 
 //
