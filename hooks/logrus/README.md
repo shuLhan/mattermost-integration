@@ -4,7 +4,7 @@ Package logrus contains logrus's hook for Mattermost.
 
 Features:
 - Asynchronous
-- No level filter: all levels from logrus will be send to Mattermost.
+- Filter log by level
 - Sending log as attachment (see NewHook)
 
 Default format for log output in Mattermost:
@@ -32,7 +32,8 @@ int main() {
 	_channel := "log_alpha"
 	_username := "app-name"
 
-	logrus.AddHook(mmlogrus.NewHook(_endpoint, _channel, _username, nil))
+	logrus.AddHook(mmlogrus.NewHook(_endpoint, _channel, _username, nil,
+				logrus.DebugLevel))
 
 	logrus.WithFields(logrus.Fields{
 		"k1": "v1",
@@ -69,7 +70,7 @@ The parameter will act as default attachment value, and it will replace the
 	}
 
 	logrus.AddHook(mmlogrus.NewHook(_endpoint, _channel, _username,
-		defAttc))
+		defAttc, logrus.DebugLevel))
 
 	...
 ```

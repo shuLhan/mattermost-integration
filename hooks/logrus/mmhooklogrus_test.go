@@ -44,7 +44,7 @@ func assert(t *testing.T, exp, got interface{}, equal bool) {
 }
 
 func TestFire(t *testing.T) {
-	NewHook(_endpoint, _channel, _username, nil)
+	NewHook(_endpoint, _channel, _username, nil, logrus.TraceLevel)
 
 	tests := []struct {
 		desc string
@@ -63,6 +63,18 @@ func TestFire(t *testing.T) {
 			desc: "With message",
 			in: logrus.Entry{
 				Message: "Test",
+				Data: logrus.Fields{
+					"k1": "v1",
+					"k2": "v2",
+				},
+			},
+			exp: "ok",
+		},
+		{
+			desc: "With level trace",
+			in: logrus.Entry{
+				Level:   logrus.TraceLevel,
+				Message: "Test trace",
 				Data: logrus.Fields{
 					"k1": "v1",
 					"k2": "v2",
@@ -181,7 +193,7 @@ func TestFireWithAttachment(t *testing.T) {
 		Pretext: "Send from test",
 	}
 
-	NewHook(_endpoint, _channel, _username, &attc)
+	NewHook(_endpoint, _channel, _username, &attc, logrus.TraceLevel)
 
 	tests := []struct {
 		desc string
@@ -200,6 +212,18 @@ func TestFireWithAttachment(t *testing.T) {
 			desc: "With message",
 			in: logrus.Entry{
 				Message: "Test with attachment",
+				Data: logrus.Fields{
+					"k1": "v1",
+					"k2": "v2",
+				},
+			},
+			exp: "ok",
+		},
+		{
+			desc: "With level trace",
+			in: logrus.Entry{
+				Level:   logrus.TraceLevel,
+				Message: "Test attachment trace",
 				Data: logrus.Fields{
 					"k1": "v1",
 					"k2": "v2",
