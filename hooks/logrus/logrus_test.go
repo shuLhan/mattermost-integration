@@ -12,7 +12,8 @@ import (
 )
 
 func TestLogrusAddHook(t *testing.T) {
-	logrus.AddHook(NewHook(_endpoint, _channel, _username, nil))
+	logrus.AddHook(NewHook(_endpoint, _channel, _username, nil,
+		logrus.TraceLevel))
 
 	logrus.WithFields(logrus.Fields{
 		"animal": "walrus",
