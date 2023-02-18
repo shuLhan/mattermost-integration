@@ -11,8 +11,8 @@ import (
 func TestFieldUnmarshalJSON(t *testing.T) {
 	tests := []struct {
 		desc string
-		in   Field
 		exp  string
+		in   Field
 	}{
 		{
 			desc: "With empty field",

@@ -14,15 +14,15 @@ import (
 
 // Message define the message that will be send to Mattermost.
 type Message struct {
-	buf        bytes.Buffer
+	attc       *Attachment
+	entryData  logrus.Fields
 	channel    string
 	username   string
 	hostname   string
-	attc       *Attachment
-	entryData  logrus.Fields
-	entryLevel logrus.Level
 	entryMsg   string
 	dataKeys   []string
+	buf        bytes.Buffer
+	entryLevel logrus.Level
 }
 
 // NewMessage will create and return new Message.

@@ -161,8 +161,8 @@ func TestFire(t *testing.T) {
 				Data: logrus.Fields{
 					"string": "string with space",
 					"struct": struct {
-						n int
 						s string
+						n int
 					}{
 						n: 10,
 						s: "a string",
@@ -310,8 +310,8 @@ func TestFireWithAttachment(t *testing.T) {
 				Data: logrus.Fields{
 					"string": "string with space",
 					"struct": struct {
-						n int
 						s string
+						n int
 					}{
 						n: 10,
 						s: "a string",

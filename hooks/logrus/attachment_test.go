@@ -11,8 +11,8 @@ import (
 func TestAttachmentMarshalJSON(t *testing.T) {
 	tests := []struct {
 		desc string
-		in   Attachment
 		exp  string
+		in   Attachment
 	}{
 		{
 			desc: "With empty fields",

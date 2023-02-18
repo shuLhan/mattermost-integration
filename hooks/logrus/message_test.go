@@ -19,8 +19,8 @@ func newMessage() *Message {
 			"number": 1,
 			"string": "a string",
 			"struct": struct {
-				n int
 				s string
+				n int
 			}{
 				n: 10,
 				s: "string in struct",

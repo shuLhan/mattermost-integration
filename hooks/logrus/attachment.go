@@ -33,12 +33,13 @@ type Attachment struct {
 	AuthorName string
 	Color      string
 	Fallback   string
-	Fields     Fields
 	ImageURL   string
 	Pretext    string
 	Text       string
 	Title      string
 	TitleLink  string
+
+	Fields     Fields
 }
 
 // NewAttachment will create and return new Attachment with default value set
