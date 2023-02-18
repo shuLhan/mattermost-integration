@@ -1,0 +1,42 @@
+// Copyright 2023 M. Sulhan <ms@kilabit.info>. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+= Changelog
+:toc:
+
+[#v1_1_0]
+== Release mattermost-integration v1.1.0 (2023-02-18)
+
+This release add Go module with minimum version 1.18 and update the logrus
+dependency to v1.9.0.
+
+[#v1_1_0_enhancements]
+===  Enhancements
+
+* hooks/logrus: add attachment color for log level trace
+* added :mag_right: as emoji for trace level
+* Adding min_level to avoid log some messages unless specified
+
+[#v1_1_0_chores]
+===  Chores
+
+* all: move Makefile from hooks/logrus to root repository and simplify it
+* hooks/logrus: realign all struct
+* hooks/logrus: reformat .go files with latest gofmt
+
+
+[#v1_0_0]
+== Release mattermost-integration v1.0.0 (2018-05-01)
+
+This repository contains Go library and tools for integrating with Mattermost.
+
+Features,
+
+* scripts/mm.sh: shell script to send text to Mattermost.
+
+* buildbot/mattermost.py: change hook for buildbot.
+
+* hooks/logrus: Go package for creating hook for Logrus. Features:
+** Asynchronous
+** No level filter: all levels from logrus will be send to Mattermost.
+** Sending log as attachment (see NewHook)
