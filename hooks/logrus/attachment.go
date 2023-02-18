@@ -24,11 +24,9 @@ var (
 	}
 )
 
-//
 // Attachment define Mattermost message attachment [1].
 //
 // [1] https://docs.mattermost.com/developer/message-attachments.html
-//
 type Attachment struct {
 	AuthorIcon string
 	AuthorLink string
@@ -43,10 +41,8 @@ type Attachment struct {
 	TitleLink  string
 }
 
-//
 // NewAttachment will create and return new Attachment with default value set
 // from `attc` and Color and Fields based on logrus Entry Level and Data.
-//
 func NewAttachment(defAttc *Attachment, entry *logrus.Entry) (
 	attc *Attachment,
 ) {
@@ -91,9 +87,7 @@ func (attc Attachment) marshalAuthor(buf *bytes.Buffer) {
 	}
 }
 
-//
 // MarshalJSON will convert Attachment `attc` to JSON.
-//
 func (attc Attachment) MarshalJSON() (out []byte, err error) {
 	var buf bytes.Buffer
 	var bFields []byte
@@ -157,9 +151,7 @@ func (attc Attachment) MarshalJSON() (out []byte, err error) {
 	return
 }
 
-//
 // SetFields will convert logrus Fields data `in` into our Fields.
-//
 func (attc *Attachment) SetFields(in logrus.Fields) {
 	attc.Fields = make(Fields, 0)
 

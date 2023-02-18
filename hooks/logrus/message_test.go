@@ -43,7 +43,7 @@ func BenchmarkMarshalJSONOld(b *testing.B) {
 	assertb(b, expMsgJSON, got, true)
 
 	for x := 0; x < b.N; x++ {
-		msg._marshalJSON()
+		_, _ = msg._marshalJSON()
 	}
 }
 
@@ -59,6 +59,6 @@ func BenchmarkMarshalJSONBuffer(b *testing.B) {
 	assertb(b, expMsgJSON, got, true)
 
 	for x := 0; x < b.N; x++ {
-		msg.MarshalJSON()
+		_, _ = msg.MarshalJSON()
 	}
 }

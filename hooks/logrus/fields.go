@@ -8,15 +8,11 @@ import (
 	"bytes"
 )
 
-//
 // Fields define list of field in message attachments.
-//
 type Fields []Field
 
-//
 // MarshalJSON will convert `field` into a valid JSON. We use manual
 // convertion for gaining speed.
-//
 func (fields Fields) MarshalJSON() (out []byte, err error) {
 	var buf bytes.Buffer
 	sep := false

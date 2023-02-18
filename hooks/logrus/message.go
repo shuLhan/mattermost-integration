@@ -12,9 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//
 // Message define the message that will be send to Mattermost.
-//
 type Message struct {
 	buf        bytes.Buffer
 	channel    string
@@ -27,9 +25,7 @@ type Message struct {
 	dataKeys   []string
 }
 
-//
 // NewMessage will create and return new Message.
-//
 func NewMessage(channel, username, hostname string, attc *Attachment,
 	entry *logrus.Entry,
 ) (msg *Message) {
@@ -53,11 +49,9 @@ func (msg *Message) generateDataKeys() {
 	sort.Strings(msg.dataKeys)
 }
 
-//
 // getText will convert Message into text. The text output format,
 //
 // `:icon: <field-key=field-value ...> msg=Message`
-//
 func (msg Message) getText() (str string) {
 	var out []byte
 
@@ -108,10 +102,8 @@ func (msg Message) getText() (str string) {
 	return string(out)
 }
 
-//
 // _marshalJSON will convert message to JSON.
 // NOTE: unused
-//
 func (msg *Message) _marshalJSON() (out []byte, err error) {
 	str := `{`
 
@@ -208,9 +200,7 @@ func (msg *Message) writeText() (err error) {
 	return
 }
 
-//
 // marshalJSON will convert message to JSON.
-//
 func (msg *Message) MarshalJSON() (out []byte, err error) {
 	msg.buf.Reset()
 

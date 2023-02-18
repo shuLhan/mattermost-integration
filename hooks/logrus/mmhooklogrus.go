@@ -34,10 +34,8 @@ var (
 	}
 )
 
-//
 // mmHookLogrus contains configuration for Mattermost (server address,
 // channel, username) and reusable http transport and client.
-//
 type mmHookLogrus struct {
 	endpoint string
 	channel  string
@@ -47,7 +45,6 @@ type mmHookLogrus struct {
 	levels   []logrus.Level
 }
 
-//
 // NewHook will create a log hook for mattermost. The log will be send to
 // server at `endpoint` inside `channel` name, using `username`.
 //
@@ -61,7 +58,6 @@ type mmHookLogrus struct {
 // replace the `Text` with `Entry.Message` and `Fields` with `Entry.Data`.
 //
 // [1] https://docs.mattermost.com/developer/message-attachments.html
-//
 func NewHook(endpoint, channel, username string, attc *Attachment, minLevel logrus.Level) logrus.Hook {
 	levels := make([]logrus.Level, 0, len(logrus.AllLevels))
 	for _, lvl := range logrus.AllLevels { // sorted reversally
@@ -104,16 +100,12 @@ func NewHook(endpoint, channel, username string, attc *Attachment, minLevel logr
 	return _hook
 }
 
-//
 // Levels will return all logrus level that will be send to Mattermost.
-//
 func (hook *mmHookLogrus) Levels() []logrus.Level {
 	return hook.levels
 }
 
-//
 // Fire will send logrus `entry` to Mattermost.
-//
 func (hook *mmHookLogrus) Fire(entry *logrus.Entry) (err error) {
 	if entry == nil {
 		return
@@ -131,9 +123,7 @@ func (hook *mmHookLogrus) Fire(entry *logrus.Entry) (err error) {
 	return
 }
 
-//
 // Endpoint will return Mattermost endpoint defined in hook.
-//
 func (hook *mmHookLogrus) Endpoint() (endpoint string) {
 	_hookLocker.Lock()
 	endpoint = hook.endpoint
@@ -141,9 +131,7 @@ func (hook *mmHookLogrus) Endpoint() (endpoint string) {
 	return
 }
 
-//
 // Channel will return Mattermost channel defined in hook.
-//
 func (hook *mmHookLogrus) Channel() (channel string) {
 	_hookLocker.Lock()
 	channel = hook.channel
@@ -151,9 +139,7 @@ func (hook *mmHookLogrus) Channel() (channel string) {
 	return
 }
 
-//
 // Username will return Mattermost username defined in hook.
-//
 func (hook *mmHookLogrus) Username() (username string) {
 	_hookLocker.Lock()
 	username = hook.username
@@ -161,9 +147,7 @@ func (hook *mmHookLogrus) Username() (username string) {
 	return
 }
 
-//
 // Attachment will return default Mattermost attachment defined in hook.
-//
 func (hook *mmHookLogrus) Attachment() (attc *Attachment) {
 	_hookLocker.Lock()
 	attc = hook.defAttc
@@ -171,9 +155,7 @@ func (hook *mmHookLogrus) Attachment() (attc *Attachment) {
 	return
 }
 
-//
 // Hostname will return hostname of current hook.
-//
 func (hook *mmHookLogrus) Hostname() (hostname string) {
 	_hookLocker.Lock()
 	hostname = hook.hostname

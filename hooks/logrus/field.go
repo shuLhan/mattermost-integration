@@ -8,22 +8,18 @@ import (
 	"bytes"
 )
 
-//
 // Field define a single field in message attachment.
-//
 type Field struct {
 	Short bool
 	Title string
 	Value string
 }
 
-//
 // MarshalJSON will convert `field` into a valid JSON.
 //
 // (1) The conversion will skip empty field Title or Value.
 //
 // Returned error always nil.
-//
 func (field Field) MarshalJSON() (out []byte, err error) {
 	var buf bytes.Buffer
 

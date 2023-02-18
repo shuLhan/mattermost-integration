@@ -40,10 +40,8 @@ func TestLogrusAddHook(t *testing.T) {
 	}).Error("A walrus error")
 }
 
-//
 // TestMain will only run if user set the MM_HOOK_LOGRUS_ENDPOINT value in
 // environment.
-//
 func TestMain(m *testing.M) {
 	_endpoint = os.Getenv(envEndpointName)
 	_channel = os.Getenv(envChannelName)

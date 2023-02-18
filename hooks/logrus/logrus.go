@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//
 // Package logrus contains logrus's hook for Mattermost.
 //
 // Features:
@@ -10,30 +9,27 @@
 // - No level filter: all levels from logrus will be send to Mattermost.
 // - Sending log as message attachment (see NewHook)
 //
-// Example
+// # Example
 //
-//```
-// import (
-//	"github.com/sirupsen/logrus"
-//	mmlogrus "github.com/shuLhan/mattermost-integration/hooks/logrus"
-// )
+//	import (
+//		"github.com/sirupsen/logrus"
+//		mmlogrus "github.com/shuLhan/mattermost-integration/hooks/logrus"
+//	)
 //
-// int main() {
-//	_endpoint := https://my.mattermost.org/hooks/xxx"
-//	_channel := "log_alpha"
-//	_username := "app-name"
+//	int main() {
+//		_endpoint := https://my.mattermost.org/hooks/xxx"
+//		_channel := "log_alpha"
+//		_username := "app-name"
 //
-//	logrus.AddHook(mmlogrus.NewHook(_endpoint, _channel, _username, nil))
+//		logrus.AddHook(mmlogrus.NewHook(_endpoint, _channel, _username, nil))
 //
-//	logrus.WithFields(logrus.Fields{
-//		"k1": "v1",
-//		"k2": "v2",
-//	}).Info("Test info")
+//		logrus.WithFields(logrus.Fields{
+//			"k1": "v1",
+//			"k2": "v2",
+//		}).Info("Test info")
 //
-//	mmlogrus.Stop()
-// }
-//```
-//
+//		mmlogrus.Stop()
+//	}
 package logrus
 
 import (
@@ -51,12 +47,10 @@ var (
 	_running  bool
 )
 
-//
 // send will send message `msg` to Mattermost.
 //
 // On success it will return the HTTP response body with nil error.
 // On fail it will return empty response with error message.
-//
 func send(msg *Message) (sResBody string, err error) {
 	var (
 		reqBody, resBody []byte
@@ -94,10 +88,8 @@ func send(msg *Message) (sResBody string, err error) {
 	return
 }
 
-//
 // consumer will consume message from channel `_chanMsg` to be send to
 // Mattermost.
-//
 func consumer() {
 	_running = true
 	for _running {
@@ -123,9 +115,7 @@ out:
 	_running = false
 }
 
-//
 // Stop will wait for all message to be send and close all channels.
-//
 func Stop() {
 	_running = false
 	if _chanMsg != nil {
